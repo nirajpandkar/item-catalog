@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Category</title>
+</head>
+<body>
+    <form method="POST" action="{{ url_for('new_category') }}">
+        <input type="text" placeholder="CategoryName" name="new_category">
+        <input type="submit">
+    </form>
+</body>
+</html>
