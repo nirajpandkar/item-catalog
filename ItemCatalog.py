@@ -20,6 +20,9 @@ def show_categories():
 
 @app.route('/category/new', methods=['GET', 'POST'])
 def new_category():
+    '''
+        Creates a new category
+    '''
     if request.method == 'POST':
         genre = Category(name=request.form['new_category'])
         session.add(genre)
@@ -31,7 +34,13 @@ def new_category():
 
 @app.route('/category/<string:category_name>/edit', methods=['GET', 'POST'])
 def edit_category(category_name):
-    edited_genre = session.query(Category).filter_by(name=category_name)
+    '''
+        Arguments: Name of the category which is to be edited
+
+        Edits an existing category name.
+    '''
+    edited_genre = session.query(Category).filter_by(name=category_name)\
+        .first()
     if request.method == 'POST':
         if request.form['edit_category']:
             edited_genre.name = request.form['edit_category']
@@ -39,12 +48,13 @@ def edit_category(category_name):
         session.commit()
         return redirect(url_for('show_categories'))
     else:
-        return render_template("editcategory.html", genre=category_name)
+        return render_template("editcategory.html", genre=edited_genre.name)
 
 
-@app.route('/category/category_name/delete')
+
+@app.route('/category/<string:category_name>/delete')
 def delete_category():
-    return render_template("deletecategory.html")
+    return render_template("deletecategory.html", genre=deleted_genre.name)
 
 
 @app.route('/category/<string:name>/items')
