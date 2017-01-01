@@ -40,7 +40,7 @@ def edit_category(category_name):
         Edits an existing category name.
     '''
     edited_genre = session.query(Category).filter_by(name=category_name)\
-        .first()
+        .one()
     if request.method == 'POST':
         if request.form['edit_category']:
             edited_genre.name = request.form['edit_category']
@@ -51,10 +51,21 @@ def edit_category(category_name):
         return render_template("editcategory.html", genre=edited_genre.name)
 
 
+@app.route('/category/<string:category_name>/delete', methods=['GET', 'POST'])
+def delete_category(category_name):
+    '''
+        Arguments: Name of the category which is to be edited
 
-@app.route('/category/<string:category_name>/delete')
-def delete_category():
-    return render_template("deletecategory.html", genre=deleted_genre.name)
+        Deletes an existing category name.
+    '''
+    deleted_genre = session.query(Category).filter_by(name=category_name)
+    if request.method == 'POST':
+        deleted_genre.delete(synchronize_session=False)
+        session.commit()
+        return redirect(url_for('show_categories'))
+    else:
+        return render_template("deletecategory.html",
+                               genre=deleted_genre.one().name)
 
 
 @app.route('/category/<string:name>/items')
