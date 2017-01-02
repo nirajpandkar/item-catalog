@@ -5,11 +5,16 @@
     <title>Items</title>
 </head>
 <body>
+    <a href="{{ url_for('new_item', category_name=genre) }}">Create a new
+        item</a><br>
+    <ul>
     {% for book in books %}
         <li>
-            {{ book.name }} <br>
+            <a href="{{ url_for('show_particular_item', category_name=genre,
+                    item_name=book.name) }}">{{ book.name }}</a> <br>
         </li>
         <br>
     {% endfor %}
+    </ul>
 </body>
 </html>
