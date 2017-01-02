@@ -102,14 +102,35 @@ def new_item(category_name):
         return render_template("newitem.html", category_name=category_name)
 
 
-@app.route('/category/category_name/item/item_name/edit')
-def edit_items():
-    return render_template("edititem.html")
+@app.route('/category/<string:category_name>/<string:item_name>/edit',
+           methods=['GET', 'POST'])
+def edit_item(category_name, item_name):
+    edited_item = session.query(Item).filter_by(name=item_name).one()
+    if request.method == 'POST':
+        edited_item.name = request.form['item_name']
+        edited_item.description = request.form['item_description']
+        session.add(edited_item)
+        session.commit()
+        return redirect(url_for('show_particular_item',
+                                category_name=category_name,
+                                item_name=edited_item.name))
+    else:
+        return render_template("edititem.html", item=edited_item,
+                               genre=category_name)
 
 
-@app.route('/category/category_name/item/item_name/delete')
-def delete_items():
-    return render_template("deleteitem.html")
+@app.route('/category/<string:category_name>/<string:item_name>/delete',
+           methods=['GET', 'POST'])
+def delete_item(category_name, item_name):
+    deleted_item = session.query(Item).filter_by(
+        name=item_name)
+    if request.method == 'POST':
+        deleted_item.delete(synchronize_session=False)
+        session.commit()
+        return redirect(url_for('show_items', name=category_name))
+    else:
+        return render_template("deleteitem.html", genre=category_name,
+                               item=item_name)
 
 if __name__ == '__main__':
     app.debug = True
