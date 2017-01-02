@@ -5,6 +5,11 @@
     <title>New Item</title>
 </head>
 <body>
-
+    <form action="{{ url_for('new_item', category_name=category_name) }}"
+          method="post">
+        <input type="text" placeholder="Name" name="name">
+        <input type="text" placeholder="Description" name="description">
+        <input type="submit" value="Submit">
+    </form>
 </body>
 </html>
