@@ -16,7 +16,15 @@ class Category(Base):
     __tablename__ = 'category'
     name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
-    # item = relationship("Item", cascade="all,delete")
+    items = relationship("Item", cascade="all,delete-orphan")
+
+    @property
+    def serialize(self):
+        # Returns object data in easily serializable format
+        return {
+            'name': self.name,
+            'id': self.id,
+        }
 
 
 class Item(Base):
@@ -24,10 +32,19 @@ class Item(Base):
     name = Column(String(200), nullable=False)
     id = Column(Integer, primary_key=True)
     description = Column(String(250))
-    category_name = Column(String, ForeignKey('category.name',
-                                              ondelete='CASCADE'))
-    category = relationship(Category,
-                            backref=backref("item", passive_deletes=True))
+
+    category_name = Column(String, ForeignKey('category.name'))
+    category = relationship(Category)
+
+    @property
+    def serialize(self):
+        # Returns object data in easily serializable format
+        return{
+            'name': self.name,
+            'description': self.description,
+            'id': self.id,
+            'category_name': self.category_name
+        }
 
 # End of file
 engine = create_engine("sqlite:///categories.db")
