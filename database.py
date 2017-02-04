@@ -12,11 +12,21 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 
 
+class User(Base):
+    __tablename__ = 'user'
+    name = Column(String(250), nullable=False)
+    email = Column(String(250), nullable=False)
+    picture = Column(String(250))
+    id = Column(Integer, primary_key=True)
+
+
 class Category(Base):
     __tablename__ = 'category'
     name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
     items = relationship("Item", cascade="all,delete-orphan")
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     @property
     def serialize(self):
@@ -36,6 +46,9 @@ class Item(Base):
     category_name = Column(String, ForeignKey('category.name'))
     category = relationship(Category)
 
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
+
     @property
     def serialize(self):
         # Returns object data in easily serializable format
@@ -47,6 +60,6 @@ class Item(Base):
         }
 
 # End of file
-engine = create_engine("sqlite:///categories.db")
+engine = create_engine("sqlite:///categories_user.db")
 
 Base.metadata.create_all(engine)

@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database import Base, Category, Item
+from database import Base, Category, Item, User
 
-engine = create_engine('sqlite:///categories.db')
+engine = create_engine('sqlite:///categories_user.db')
 # Bind the engine to the metadata of the Base class so that the
 # declaratives can be accessed through a DBSession instance
 Base.metadata.bind = engine
@@ -20,15 +20,24 @@ DBSession = sessionmaker(bind=engine)
 
 session = DBSession()
 
+# Users
+
+User1 = User(name="Niraj Pandkar", email="niraj.pandkar@gmail.com",
+             picture='https://lh3.googleusercontent.com/-M6uS4os3Rtc/'
+                     'AAAAAAAAAAI/AAAAAAAAANM/nRgyFkTWNuI/photo.jpg')
+session.add(User1)
+session.commit()
 
 # Items in Science Fiction
 
-Genre1 = Category(name="Fiction")
+Genre1 = Category(name="Fiction",
+                  user_id=1)
 
 session.add(Genre1)
 session.commit()
 
 Book1 = Item(name="The Fault in Our Stars",
+             user_id=1,
              description="Despite the tumor-shrinking medical miracle that has "
                          "bought her a few years, Hazel has never been "
                          "anything but terminal, her final chapter inscribed "
@@ -42,6 +51,7 @@ session.add(Book1)
 session.commit()
 
 Book2 = Item(name="All the Light We Cannot See",
+             user_id=1,
              description="From the highly acclaimed, multiple award-winning "
                          "Anthony Doerr, the beautiful, stunningly ambitious "
                          "instant New York Times bestseller about a blind "
@@ -55,12 +65,14 @@ session.commit()
 
 # Items in Mystery
 
-Genre2 = Category(name="Mystery")
+Genre2 = Category(name="Mystery",
+                  user_id=1)
 
 session.add(Genre2)
 session.commit()
 
 Book1 = Item(name="Missing Melissa",
+             user_id=1,
              description="This is the story of Melissa. While Madeline and "
                          "Melissa were going for a doctor's appointment"
                          "their car was hijacked.",
