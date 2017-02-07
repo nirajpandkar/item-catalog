@@ -243,7 +243,8 @@ def fbdisconnect():
         return response
 
 
-engine = create_engine('sqlite:///categories.db')
+engine = create_engine('sqlite:///categories'
+                       '_user.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
