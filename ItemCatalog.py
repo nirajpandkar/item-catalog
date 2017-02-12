@@ -243,8 +243,7 @@ def fbdisconnect():
         return response
 
 
-engine = create_engine('sqlite:///categories'
-                       '_user.db')
+engine = create_engine('postgresql://catalog:superman1$@localhost/catalog')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()

@@ -1,7 +1,7 @@
 # Configuration
 
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -22,8 +22,8 @@ class User(Base):
 
 class Category(Base):
     __tablename__ = 'category'
-    name = Column(String(80), nullable=False)
-    id = Column(Integer, primary_key=True)
+    name = Column(String(80), nullable=False, primary_key=True)
+    id = Column(Integer)
     items = relationship("Item", cascade="all,delete-orphan")
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
@@ -60,6 +60,6 @@ class Item(Base):
         }
 
 # End of file
-engine = create_engine("sqlite:///categories_user.db")
+engine = create_engine('postgresql://catalog:superman1$@localhost/catalog')
 
 Base.metadata.create_all(engine)
