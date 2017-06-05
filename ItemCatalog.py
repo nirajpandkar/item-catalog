@@ -205,7 +205,7 @@ def fbconnect():
     if not user_id:
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
-    time.sleep(10)
+
     return redirect(url_for("show_categories"))
 
 
@@ -360,7 +360,7 @@ def new_item(category_name):
         book = Item(name=request.form['name'],
                     description=request.form['description'],
                     category_name=category_name,
-                    user_id=category.user_id)
+                    user_id=login_session['user_id'])
         session.add(book)
         try:
             session.commit()
@@ -403,9 +403,6 @@ def delete_item(category_name, item_name):
         deleted_item.delete(synchronize_session=False)
         session.commit()
         return redirect(url_for('show_items', name=category_name))
-    else:
-        return render_template("deleteitem.html", genre=category_name,
-                               item=item_name)
 
 
 @app.route('/category/<string:category_name>/item/JSON')
