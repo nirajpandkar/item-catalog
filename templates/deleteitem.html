@@ -1,14 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Delete Item</title>
-</head>
-<body>
-    Are you sure you want to delete {{ item }}
-    <form method="POST" action="{{ url_for('delete_item',
-    category_name=genre, item_name=item) }}">
-        <input type="submit">
-    </form>
-</body>
-</html>
+{% extends "categories.html" %}
+
+{% block main %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 offset-md-4">
+                Are you sure you want to delete the book <h3>{{ item }}</h3>
+                from the genre <h3>{{ genre }}</h3>?
+                <form method="POST" action="{{ url_for('delete_item',
+                category_name=genre, item_name=item) }}">
+                    <input type="submit">
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

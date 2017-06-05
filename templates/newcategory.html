@@ -1,13 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>New Category</title>
-</head>
-<body>
-    <form method="POST" action="{{ url_for('new_category') }}">
-        <input type="text" placeholder="CategoryName" name="new_category">
-        <input type="submit">
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block main %}
+
+
+    <div class="container">
+      <form method="POST"
+          action="{{ url_for('new_category') }}">
+        <div class="form-group row">
+          <div class="col-sm-12">
+            <input type="text" class="form-control form-control-lg col-sm-8
+             offset-sm-2" id="lgFormGroupInput" placeholder="New category..."
+             name="new_category">
+          </div>
+        </div>
+        <div class="row">
+            <div class="offset-sm-5 col-sm-12">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    Submit
+                </button>
+            </div>
+
+        </div>
+      </form>
+    </div>
+
+
+{% endblock %}

@@ -1,18 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ book.name }}</title>
-</head>
-<body>
-    <h1>{{ genre.name }}</h1>
-    <h4>{{ book.name }}</h4>
-    <h3>Description:</h3>
-    <p>{{ book.description }}</p>
+{% extends "categories.html" %}
 
-    <a href="{{ url_for('edit_item', category_name=genre.name,
-                        item_name=book.name) }}">Edit</a>
-    <a href="{{ url_for('delete_item', category_name=genre.name,
-                        item_name=book.name) }}">Delete</a>
-</body>
-</html>
+{% block items %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-10 offset-sm-1">
+                <div class="jumbotron jumbotron-fluid" style="background-color:#F2EEB3">
+                    <div class="container">
+                        <h1 class="display-3">{{ book.name }}</h1>
+                        <p class="lead">{{ book.description }}</p>
+                    </div>
+                    <hr class="my-4">
+                    <div class="row justify-content-center">
+                        {% if book.user_id == logged_user_id %}
+                            <div class="col-sm-4 text-center">
+                                <a href="{{ url_for('edit_item', category_name=genre.name,
+                                                                item_name=book.name) }}"
+                                    class="btn btn-warning">
+                                    Edit
+                                </a>
+                            </div>
+                            <br><br>
+                            <div class="col-sm-4 text-center">
+{#                            <a href="{{ url_for('delete_item', category_name=genre.name,#}
+{#                                                item_name=book.name) }}"#}
+{#                                class="btn btn-danger">#}
+{#                                Delete#}
+{#                            </a>#}
+                            <button type="button" class="btn btn-primary"
+                                    data-toggle="modal"
+                                    data-target="#deleteModal">
+                              Delete
+                            </button>
+                        </div>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirmation</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p class="text-center">Are you sure you want to delete the book
+                <strong>{{ book.name }}</strong> from the genre
+                <strong>{{ genre.name }}</strong>?</p>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <form method="POST" action="{{ url_for('delete_item',
+                category_name=genre.name, item_name=book.name) }}">
+                    <input class="btn btn-danger" value="Delete" type="submit">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Modal end-->
+{% endblock %}
