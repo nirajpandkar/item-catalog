@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import random
 import string
+import time
 from flask import session as login_session
 
 
@@ -141,12 +142,15 @@ def gdisconnect():
         del login_session['user_id']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        time.sleep(1)
+        flash("Logged out")
+        return redirect(url_for("show_categories"))
     else:
         response = make_response(json.dumps('Failed to revoke token for '
                                             'given user.', 400))
         response.headers['Content-Type'] = 'application/json'
-        return response
+        flash("Failed to revoke token for given user")
+        return redirect(url_for("show_categories"))
 
 
 # Facebook login
@@ -164,23 +168,21 @@ def fbconnect():
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
+    url = 'https://graph.facebook.com/v2.9/oauth/access_token?grant_type' \
+          '=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
         app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
+    data = json.loads(result)
+    token = 'access_token=' + data['access_token']
 
-    # Use token to get user info from API
-    userinfo_url = "https://graph.facebook.com/v2.4/me"
-    # strip expire tag from access token
-    token = result.split("&")[0]
-
-
-    url = 'https://graph.facebook.com/v2.4/me?%s&fields=name,id,email' % token
+    url = 'https://graph.facebook.com/v2.9/me?%s&fields=name,id,email' % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     # print "url sent for API access:%s"% url
     # print "API JSON result: %s" % result
     data = json.loads(result)
+    print "YOLO:" + str(data)
     login_session['provider'] = 'facebook'
     login_session['username'] = data["name"]
     login_session['email'] = data["email"]
@@ -203,18 +205,8 @@ def fbconnect():
     if not user_id:
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
-
-    output = ''
-    output += '<h1>Welcome, '
-    output += login_session['username']
-
-    output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-
-    flash("Now logged in as %s" % login_session['username'])
-    return output
+    time.sleep(10)
+    return redirect(url_for("show_categories"))
 
 
 @app.route('/fbdisconnect')
@@ -235,7 +227,8 @@ def fbdisconnect():
         del login_session['user_id']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        time.sleep(1)
+        return redirect(url_for("show_categories"))
     else:
         response = make_response(json.dumps('Failed to revoke token for '
                                             'given user.', 400))
@@ -263,14 +256,13 @@ def showLogin():
 def show_categories():
     categories = session.query(Category).all()
     username = login_session.get('username')
-
     user_id = login_session.get('user_id')
+    provider = login_session.get('provider')
     if username is not None:
         username = login_session.get('username')
-    else:
-        username = "Guest"
     return render_template("categories.html", categories=categories,
-                           username=username, user_id=user_id)
+                           username=username, user_id=user_id,
+                           provider=provider)
 
 
 @app.route('/category/new', methods=['GET', 'POST'])
@@ -341,7 +333,10 @@ def delete_category(category_name):
 @app.route('/category/<string:name>/')
 def show_items(name):
     books = session.query(Item).filter_by(category_name=name)
-    return render_template("items.html", books=books, genre=name)
+    categories = session.query(Category).all()
+    username = login_session.get('username')
+    return render_template("items.html", books=books, genre=name,
+                           categories=categories, username=username)
 
 
 @app.route('/category/<string:category_name>/<string:item_name>/')
@@ -349,8 +344,11 @@ def show_particular_item(category_name, item_name):
     genre = session.query(Category).filter_by(name=category_name).first()
     book = session.query(Item).filter_by(name=item_name).first()
     logged_user_id = login_session.get('user_id')
+    username = login_session.get('username')
+    categories = session.query(Category).all()
     return render_template("item.html", book=book, genre=genre,
-                           logged_user_id=logged_user_id)
+                           logged_user_id=logged_user_id,
+                           categories=categories, username=username)
 
 
 @app.route('/category/<string:category_name>/new', methods=['GET', 'POST'])
@@ -364,7 +362,12 @@ def new_item(category_name):
                     category_name=category_name,
                     user_id=category.user_id)
         session.add(book)
-        session.commit()
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            raise
+
         return redirect(url_for('show_items', name=category_name))
     else:
         return render_template("newitem.html", category_name=category_name)
