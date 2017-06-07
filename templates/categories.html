@@ -35,21 +35,14 @@
 {% block main %}
 
     <div class="container-fluid">
-        <div class="row justify-text-center">
-            {% if username %}
-                <div class="col-sm-6 text-center">
-                    <a class="btn btn-primary btn-large" href="{{ url_for('new_category') }}">
-                        Add Category
-                    </a>
-                </div>
-            {% endif %}
-
-            <div class="col-sm-6 text-center my-2">
+        <div class="row justify-content-center text-center">
+            <div class="col-sm-12">
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Select Category
+                        Select Genre
                     </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <div class="dropdown-menu"
+                         aria-labelledby="dropdownMenuButton">
 
                         {% for i in categories %}
                             <a class="dropdown-item" href="{{ url_for('show_items', name=i.name ) }}">{{ i.name }}</a>
@@ -58,6 +51,14 @@
                     </div>
                 </div>
             </div>
+            {% if username %}
+                <div class="col-sm-12 my-3">
+                    <a class="btn btn-primary" href="{{ url_for("new_category") }}"
+                       role="button">
+                        Add genre
+                    </a>
+                </div>
+            {% endif %}
 
         </div>
     </div>

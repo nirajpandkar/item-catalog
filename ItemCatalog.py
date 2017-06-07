@@ -101,17 +101,7 @@ def gconnect():
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
-    print login_session['username']
-    print login_session['picture']
-    output = ''
-    output += '<h1>Welcome, '
-    output += login_session['username']
-    output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += '" style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % login_session['username'])
-    print "done!"
+    output = 'Login Successful!</br>Redirecting...'
     return output
 
 
@@ -205,8 +195,9 @@ def fbconnect():
     if not user_id:
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
-    time.sleep(10)
-    return redirect(url_for("show_categories"))
+
+    output = 'Login Successful!</br>Redirecting...'
+    return output
 
 
 @app.route('/fbdisconnect')
@@ -335,8 +326,12 @@ def show_items(name):
     books = session.query(Item).filter_by(category_name=name)
     categories = session.query(Category).all()
     username = login_session.get('username')
+    logged_user_id = login_session.get('user_id')
+    genre_user_id = session.query(Category).filter_by(name=name).one().user_id
     return render_template("items.html", books=books, genre=name,
-                           categories=categories, username=username)
+                           categories=categories, username=username,
+                           logged_user_id=logged_user_id,
+                           genre_user_id=genre_user_id)
 
 
 @app.route('/category/<string:category_name>/<string:item_name>/')
@@ -360,7 +355,7 @@ def new_item(category_name):
         book = Item(name=request.form['name'],
                     description=request.form['description'],
                     category_name=category_name,
-                    user_id=category.user_id)
+                    user_id=login_session['user_id'])
         session.add(book)
         try:
             session.commit()
@@ -403,9 +398,6 @@ def delete_item(category_name, item_name):
         deleted_item.delete(synchronize_session=False)
         session.commit()
         return redirect(url_for('show_items', name=category_name))
-    else:
-        return render_template("deleteitem.html", genre=category_name,
-                               item=item_name)
 
 
 @app.route('/category/<string:category_name>/item/JSON')
