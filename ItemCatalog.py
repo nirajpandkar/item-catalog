@@ -101,17 +101,7 @@ def gconnect():
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
-    print login_session['username']
-    print login_session['picture']
-    output = ''
-    output += '<h1>Welcome, '
-    output += login_session['username']
-    output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += '" style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % login_session['username'])
-    print "done!"
+    output = 'Login Successful!</br>Redirecting...'
     return output
 
 
@@ -206,7 +196,8 @@ def fbconnect():
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
-    return redirect(url_for("show_categories"))
+    output = 'Login Successful!</br>Redirecting...'
+    return output
 
 
 @app.route('/fbdisconnect')
@@ -335,8 +326,12 @@ def show_items(name):
     books = session.query(Item).filter_by(category_name=name)
     categories = session.query(Category).all()
     username = login_session.get('username')
+    logged_user_id = login_session.get('user_id')
+    genre_user_id = session.query(Category).filter_by(name=name).one().user_id
     return render_template("items.html", books=books, genre=name,
-                           categories=categories, username=username)
+                           categories=categories, username=username,
+                           logged_user_id=logged_user_id,
+                           genre_user_id=genre_user_id)
 
 
 @app.route('/category/<string:category_name>/<string:item_name>/')
