@@ -307,7 +307,7 @@ def new_category():
             session.commit()
         except:
             session.rollback()
-            raise
+            flash("Error: Cannot have two categories with the same name!")
         return redirect(url_for('show_categories'))
     else:
         return render_template("newcategory.html")
@@ -329,15 +329,15 @@ def edit_category(category_name):
             edited_genre.name = request.form['edit_category']
         session.add(edited_genre)
         edited_genre_item = session.query(Item).filter_by(
-            category_name=category_name)
+            category_id=edited_genre.id)
         for i in edited_genre_item:
-            i.category_name = request.form['edit_category']
+            i.category_id = edited_genre.id
             session.add(i)
         try:
             session.commit()
         except:
             session.rollback()
-            raise
+            flash("Error: Cannot have two categories with the same name!")
         return redirect(url_for('show_categories'))
     else:
         return render_template("editcategory.html", genre=edited_genre.name)
@@ -361,7 +361,8 @@ def delete_category(category_name):
             session.commit()
         except:
             session.rollback()
-            raise
+            flash("Error in deleting the category" + str(category_name))
+
         return redirect(url_for('show_categories'))
     else:
         return render_template("deletecategory.html",
@@ -377,8 +378,9 @@ def show_items(name):
     Gives the information about the items contained in that particular
     category
     """
-    books = session.query(Item).filter_by(category_name=name)
     categories = session.query(Category).all()
+    genre = session.query(Category).filter_by(name=name).one()
+    books = session.query(Item).filter_by(category_id=genre.id)
     username = login_session.get('username')
     logged_user_id = login_session.get('user_id')
     genre_user_id = session.query(Category).filter_by(name=name).one().user_id
@@ -419,14 +421,14 @@ def new_item(category_name):
     if request.method == 'POST':
         book = Item(name=request.form['name'],
                     description=request.form['description'],
-                    category_name=category_name,
+                    category_id=category.id,
                     user_id=login_session['user_id'])
         session.add(book)
         try:
             session.commit()
         except:
             session.rollback()
-            raise
+            flash("Error while adding new item!")
 
         return redirect(url_for('show_items', name=category_name))
     else:
@@ -449,7 +451,11 @@ def edit_item(category_name, item_name):
         edited_item.name = request.form['item_name']
         edited_item.description = request.form['item_description']
         session.add(edited_item)
-        session.commit()
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            flash("Error while editing existing item!")
         return redirect(url_for('show_particular_item',
                                 category_name=category_name,
                                 item_name=edited_item.name))
@@ -477,7 +483,7 @@ def delete_item(category_name, item_name):
             session.commit()
         except:
             session.rollback()
-            raise
+            flash("Error while deleting the item" + item_name)
         return redirect(url_for('show_items', name=category_name))
 
 
@@ -485,15 +491,17 @@ def delete_item(category_name, item_name):
 
 @app.route('/category/<string:category_name>/items/JSON')
 def itemsJSON(category_name):
+    category = session.query(Category).filter_by(name=category_name).one()
     items = session.query(Item).filter_by(
-        category_name=category_name).all()
+        category_id=category.id).all()
     return jsonify(Items=[i.serialize for i in items])
 
 
 @app.route('/category/<string:category_name>/<string:item_name>/JSON')
 def itemJSON(category_name, item_name):
+    category = session.query(Category).filter_by(name=category_name).one()
     item = session.query(Item).filter_by(
-        category_name=category_name, name=item_name).one()
+        category_id=category.id, name=item_name).one()
     return jsonify(Item=[item.serialize])
 
 

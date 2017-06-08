@@ -31,8 +31,8 @@ class User(Base):
 
 class Category(Base):
     __tablename__ = 'category'
-    name = Column(String(80), primary_key=True, nullable=False)
-    id = Column(Integer, autoincrement=True)
+    name = Column(String(80), nullable=False, unique=True)
+    id = Column(Integer, primary_key=True)
     items = relationship("Item", cascade="all,delete-orphan")
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship(User)
@@ -41,6 +41,7 @@ class Category(Base):
     def serialize(self):
         # Returns object data in easily serializable format
         return {
+            'id': self.id,
             'name': self.name,
             'user_id': self.user_id
         }
@@ -52,7 +53,7 @@ class Item(Base):
     id = Column(Integer, primary_key=True)
     description = Column(String(1000))
 
-    category_name = Column(String, ForeignKey('category.name'))
+    category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)
 
     user_id = Column(Integer, ForeignKey('users.id'))
@@ -65,7 +66,7 @@ class Item(Base):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'category_name': self.category_name,
+            'category_id': self.category.id,
             'user_id': self.user_id
         }
 
