@@ -1,36 +1,88 @@
 # Item-catalog
 
-> A very minimal catalog application.
+> A very minimal catalog application displaying a book shelf.
+
+## Features
+* Displays genres(categories) and books(items)
+* Provides a third-party authentication system
+    * Google
+    * Facebook
+* Implements API endpoints with JSON response format
+* Leverages Flask Python framework for the backend and Bootstrap CSS framework for the frontend
 
 ## Setup
-* Clone the project and cd into it.
+* Clone the [fullstack-nanodegree-vm](https://github.com/udacity/fullstack-nanodegree-vm) repository which contains the required dependencies.
 ```
-git clone https://github.com/nirajpandkar/item-catalog.git
-cd item-catalog
+$ git clone https://github.com/udacity/fullstack-nanodegree-vm.git
 ```
 
-* Create a virtual environment and activate it.
+* Move into the `fullstack-nanodegree-vm/vagrant` folder and clone the current repository.
 ```
-virtualenv venv
-source venv/bin/activate
+$ cd fullstack-nanodegree-vm/vagrant
+$ git clone https://github.com/nirajpandkar/item-catalog.git 
 ```
-**Note**: May need to use `sudo` when inside priveleged folders like `/var/www/html`
 
-* Install following dependencies.
+* Launch the vagrant VM from inside the `vagrant` folder.
 ```
-pip install flask
-pip install sqlalchemy
+$ vagrant up
+$ vagrant ssh
 ```
-* Create the database.
+
+* Install dependencies
+    * You could install dependencies individually
+    ```
+    $ sudo apt-get install update
+    $ sudo apt-get install python-flask python-sqlalchemy
+    $ sudo apt-get install python-pip
+    $ sudo pip install requests
+    $ sudo pip install httplib2
+    $ sudo pip install oauth2client
+    ```
+    OR use this shell script which achieves the same.
+    ```
+    ./item_catalog.sh
+    ```
+    
+* Move inside the `item-catalog` folder and setup the required database.
 ```
-python database.py
+$ cd item-catalog
 ```
-* Populate the database.
+
+* Create user 'catalog' and database 'catalog' in postgresql.
 ```
-python populate_data.py
+$ sudo -u postgres psql postgres
+postgres=# create user catalog with password 'superman1$';
+postgres=# create database catalog owner catalog;
+postgres=# \q
 ```
-* Run the main script.
+
+* Populate the database
 ```
-python ItemCatalog.py
+$ python populate_database.py
 ```
-**Note**: May need to use `sudo` rights when necessary.
+
+* Run the application locally.
+```
+$ python ItemCatalog.py
+```
+
+
+* You'll be able to browse the application at this url(Auth is configured for 'localhost')- 
+
+    `http://localhost:5000/`
+    
+## JSON API endpoints
+
+| Endpoints       | Description           |
+| ------------- |:-------------:|
+| /categories/JSON      | Get information about all the genres |
+| /users/JSON      | Get information about all the users      |
+| /category/{genre}/items/JSON      | Get information about all the books in a particular genre     |
+| /category/{genre}/{book}/JSON | Get information about a particular book in a particular genre      |
+
+## Future Scope
+* Add author, rating, published year
+* Add user's picture to enhance profile
+## License
+
+MIT © [Niraj Pandkar](https://github.com/nirajpandkar)

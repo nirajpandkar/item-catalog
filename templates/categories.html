@@ -14,20 +14,12 @@
                 {{ username }}
             </button>
             <div class="dropdown-menu" aria-labelledby="logoutMenuButton">
-                {% if provider == 'facebook' %}
-                    <a class="btn btn-primary dropdown-item" href="{{ url_for
-                    ("fbdisconnect") }}"
-                       role="button">
-                        Logout
-                    </a>
-                {% else %}
-                    <a class="btn btn-primary dropdown-item" href="{{ url_for
-                    ("gdisconnect") }}"
-                       role="button">
-                        Logout
-                    </a>
-                {% endif %}
 
+                <a class="btn btn-primary dropdown-item" href="{{ url_for
+                    ("logout") }}"
+                       role="button">
+                        Logout
+                    </a>
             </div>
         </div>
     {% endif %}
