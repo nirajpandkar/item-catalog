@@ -1,6 +1,5 @@
 # Configuration
 
-import sys
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -19,11 +18,21 @@ class User(Base):
     picture = Column(String(250))
     id = Column(Integer, primary_key=True)
 
+    @property
+    def serialize(self):
+        # Returns users in easily serializable format
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'picture_url': self.picture
+        }
+
 
 class Category(Base):
     __tablename__ = 'category'
     name = Column(String(80), primary_key=True, nullable=False)
-    id = Column(Integer)
+    id = Column(Integer, autoincrement=True)
     items = relationship("Item", cascade="all,delete-orphan")
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship(User)
@@ -33,7 +42,7 @@ class Category(Base):
         # Returns object data in easily serializable format
         return {
             'name': self.name,
-            'id': self.id,
+            'user_id': self.user_id
         }
 
 
@@ -53,10 +62,11 @@ class Item(Base):
     def serialize(self):
         # Returns object data in easily serializable format
         return{
+            'id': self.id,
             'name': self.name,
             'description': self.description,
-            'id': self.id,
-            'category_name': self.category_name
+            'category_name': self.category_name,
+            'user_id': self.user_id
         }
 
 # End of file

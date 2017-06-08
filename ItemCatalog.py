@@ -267,7 +267,11 @@ def new_category():
         genre = Category(name=request.form['new_category'],
                          user_id=login_session['user_id'])
         session.add(genre)
-        session.commit()
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            raise
         return redirect(url_for('show_categories'))
     else:
         return render_template("newcategory.html")
@@ -293,7 +297,11 @@ def edit_category(category_name):
         for i in edited_genre_item:
             i.category_name = request.form['edit_category']
             session.add(i)
-        session.commit()
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            raise
         return redirect(url_for('show_categories'))
     else:
         return render_template("editcategory.html", genre=edited_genre.name)
@@ -313,7 +321,11 @@ def delete_category(category_name):
     if request.method == 'POST':
         # deleted_genre.delete(synchronize_session=False)
         session.delete(deleted_genre)
-        session.commit()
+        try:
+            session.commit()
+        except:
+            session.rollback()
+            raise
         return redirect(url_for('show_categories'))
     else:
         return render_template("deletecategory.html",
@@ -400,7 +412,7 @@ def delete_item(category_name, item_name):
         return redirect(url_for('show_items', name=category_name))
 
 
-@app.route('/category/<string:category_name>/item/JSON')
+@app.route('/category/<string:category_name>/items/JSON')
 def itemsJSON(category_name):
     # category = session.query(Category).filter_by(name=category_name).one()
     items = session.query(Item).filter_by(
@@ -420,6 +432,12 @@ def itemJSON(category_name, item_name):
 def categoriesJSON():
     categories = session.query(Category).all()
     return jsonify(Categories=[i.serialize for i in categories])
+
+
+@app.route('/users/JSON')
+def usersJSON():
+    users = session.query(User).all()
+    return jsonify(User=[i.serialize for i in users])
 
 # User functions
 
