@@ -30,7 +30,19 @@
     </nav>
 
 
-
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-sm-12">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                          <h2>{{ message }}</h2>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
 
     <!-- Main content block -->
     {% block main %}
