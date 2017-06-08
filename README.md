@@ -46,9 +46,21 @@ $ vagrant ssh
 * Move inside the `item-catalog` folder and setup the required database.
 ```
 $ cd item-catalog
-$ python reset_db.py
+```
+
+* Create user 'catalog' and database 'catalog' in postgresql.
+```
+$ sudo -u postgres psql postgres
+postgres=# create user catalog with password 'superman1$';
+postgres=# create database catalog owner catalog;
+postgres=# \q
+```
+
+* Populate the database
+```
 $ python populate_database.py
 ```
+
 * Run the application locally.
 ```
 $ python ItemCatalog.py
