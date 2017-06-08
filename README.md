@@ -29,19 +29,24 @@ $ vagrant ssh
 ```
 
 * Install dependencies
-```
-$ sudo apt-get install update
-$ sudo apt-get install python-flask python-sqlalchemy
-$ sudo apt-get install python-pip
-$ sudo pip install requests
-$ sudo pip install httplib2
-$ sudo pip install oauth2client
-```
+    * You could install dependencies individually
+    ```
+    $ sudo apt-get install update
+    $ sudo apt-get install python-flask python-sqlalchemy
+    $ sudo apt-get install python-pip
+    $ sudo pip install requests
+    $ sudo pip install httplib2
+    $ sudo pip install oauth2client
+    ```
+    OR use this shell script which achieves the same.
+    ```
+    ./item_catalog.sh
+    ```
+    
 * Move inside the `item-catalog` folder and setup the required database.
 ```
 $ cd item-catalog
 $ python reset_db.py
-$ python database.py
 $ python populate_database.py
 ```
 * Run the application locally.
@@ -63,3 +68,6 @@ $ python ItemCatalog.py
 | /category/{genre}/items/JSON      | Get information about all the books in a particular genre     |
 | /category/{genre}/{book}/JSON | Get information about a particular book in a particular genre      |
 
+## License
+
+MIT © [Niraj Pandkar](https://github.com/nirajpandkar)
