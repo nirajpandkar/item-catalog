@@ -1,5 +1,4 @@
-# Configuration
-
+# -*- coding: utf-8 -*-
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -51,7 +50,7 @@ class Item(Base):
     __tablename__ = 'item'
     name = Column(String(200), nullable=False)
     id = Column(Integer, primary_key=True)
-    description = Column(String(1000))
+    description = Column(String(2000))
 
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)

@@ -55,7 +55,7 @@ $ python ItemCatalog.py
 ```
 
 
-* You'll be able to browse the application at this url - 
+* You'll be able to browse the application at this url(Auth is configured for 'localhost')- 
 
     `http://localhost:5000/`
     
@@ -68,6 +68,9 @@ $ python ItemCatalog.py
 | /category/{genre}/items/JSON      | Get information about all the books in a particular genre     |
 | /category/{genre}/{book}/JSON | Get information about a particular book in a particular genre      |
 
+## Future Scope
+* Add author, rating, published year
+* Add user's picture to enhance profile
 ## License
 
 MIT © [Niraj Pandkar](https://github.com/nirajpandkar)
