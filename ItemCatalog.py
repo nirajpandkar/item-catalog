@@ -331,24 +331,29 @@ def edit_category(category_name):
         Edits an existing category name.
     """
     edited_genre = session.query(Category).filter_by(name=category_name)\
-        .first()
-    if request.method == 'POST':
-        if request.form['edit_category']:
-            edited_genre.name = request.form['edit_category']
-        session.add(edited_genre)
-        edited_genre_item = session.query(Item).filter_by(
-            category_id=edited_genre.id)
-        for i in edited_genre_item:
-            i.category_id = edited_genre.id
-            session.add(i)
-        try:
-            session.commit()
-        except:
-            session.rollback()
-            flash("Error: Cannot have two categories with the same name!")
-        return redirect(url_for('show_categories'))
+        .one()
+
+    if edited_genre.user_id == login_session['user_id']:
+        if request.method == 'POST':
+            if request.form['edit_category']:
+                edited_genre.name = request.form['edit_category']
+            session.add(edited_genre)
+            edited_genre_item = session.query(Item).filter_by(
+                category_id=edited_genre.id)
+            for i in edited_genre_item:
+                i.category_id = edited_genre.id
+                session.add(i)
+            try:
+                session.commit()
+            except:
+                session.rollback()
+                flash("Error: Cannot have two categories with the same name!")
+            return redirect(url_for('show_categories'))
+        else:
+            return render_template("editcategory.html", genre=edited_genre.name)
     else:
-        return render_template("editcategory.html", genre=edited_genre.name)
+        flash("Not authorized to edit category: " + str(category_name))
+        return redirect(url_for('show_items', name=category_name))
 
 
 @app.route('/category/<string:category_name>/delete', methods=['GET', 'POST'])
@@ -361,19 +366,24 @@ def delete_category(category_name):
     """
     deleted_genre = session.query(Category).filter_by(
         name=category_name).one()
-    if request.method == 'POST':
-        # deleted_genre.delete(synchronize_session=False)
-        session.delete(deleted_genre)
-        try:
-            session.commit()
-        except:
-            session.rollback()
-            flash("Error in deleting the category" + str(category_name))
 
-        return redirect(url_for('show_categories'))
+    if deleted_genre.user_id == login_session['user_id']:
+        if request.method == 'POST':
+            # deleted_genre.delete(synchronize_session=False)
+            session.delete(deleted_genre)
+            try:
+                session.commit()
+            except:
+                session.rollback()
+                flash("Error in deleting the category" + str(category_name))
+
+            return redirect(url_for('show_categories'))
+        else:
+            return render_template("deletecategory.html",
+                                   genre=deleted_genre.name)
     else:
-        return render_template("deletecategory.html",
-                               genre=deleted_genre.name)
+        flash("Not authorized to delete category: " + str(category_name))
+        return redirect(url_for('show_items', name=category_name))
 
 
 @app.route('/category/<string:name>/items')
@@ -452,21 +462,28 @@ def edit_item(category_name, item_name):
     Edit a particular item from a particular category.
     """
     edited_item = session.query(Item).filter_by(name=item_name).one()
-    if request.method == 'POST':
-        edited_item.name = request.form['item_name']
-        edited_item.description = request.form['item_description']
-        session.add(edited_item)
-        try:
-            session.commit()
-        except:
-            session.rollback()
-            flash("Error while editing existing item!")
+
+    if edited_item.user_id == login_session['user_id']:
+        if request.method == 'POST':
+            edited_item.name = request.form['item_name']
+            edited_item.description = request.form['item_description']
+            session.add(edited_item)
+            try:
+                session.commit()
+            except:
+                session.rollback()
+                flash("Error while editing existing item!")
+            return redirect(url_for('show_particular_item',
+                                    category_name=category_name,
+                                    item_name=edited_item.name))
+        else:
+            return render_template("edititem.html", item=edited_item,
+                                   genre=category_name)
+    else:
+        flash("Not authorized to edit item: " + str(item_name))
         return redirect(url_for('show_particular_item',
                                 category_name=category_name,
-                                item_name=edited_item.name))
-    else:
-        return render_template("edititem.html", item=edited_item,
-                               genre=category_name)
+                                item_name=item_name))
 
 
 @app.route('/category/<string:category_name>/<string:item_name>/delete',
@@ -481,14 +498,21 @@ def delete_item(category_name, item_name):
     """
     deleted_item = session.query(Item).filter_by(
         name=item_name)
-    if request.method == 'POST':
-        deleted_item.delete(synchronize_session=False)
-        try:
-            session.commit()
-        except:
-            session.rollback()
-            flash("Error while deleting the item" + item_name)
-        return redirect(url_for('show_items', name=category_name))
+
+    if deleted_item.user_id == login_session:
+        if request.method == 'POST':
+            deleted_item.delete(synchronize_session=False)
+            try:
+                session.commit()
+            except:
+                session.rollback()
+                flash("Error while deleting the item" + item_name)
+            return redirect(url_for('show_items', name=category_name))
+    else:
+        flash("Not authorized to delete item: " + str(item_name))
+        return redirect(url_for('show_particular_item',
+                                category_name=category_name,
+                                item_name=item_name))
 
 
 # JSON API endpoints
