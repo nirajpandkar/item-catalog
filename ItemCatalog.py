@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, \
 from database import Base, Category, Item, User
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from functools import wraps
 import random
 import string
 import time
@@ -31,7 +32,16 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' not in login_session:
+            return redirect(url_for('showLogin'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 # User helper functions
+
 
 def createUser(login_session):
     new_user = User(name=login_session['username'],
@@ -293,12 +303,11 @@ def show_categories():
 
 
 @app.route('/category/new', methods=['GET', 'POST'])
+@login_required
 def new_category():
     """
         Creates a new category
     """
-    if 'username' not in login_session:
-        return redirect("/login")
     if request.method == 'POST':
         genre = Category(name=request.form['new_category'],
                          user_id=login_session['user_id'])
@@ -314,14 +323,13 @@ def new_category():
 
 
 @app.route('/category/<string:category_name>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_category(category_name):
     """
         Arguments: Name of the category which is to be edited
 
         Edits an existing category name.
     """
-    if 'username' not in login_session:
-        return redirect("/login")
     edited_genre = session.query(Category).filter_by(name=category_name)\
         .first()
     if request.method == 'POST':
@@ -344,14 +352,13 @@ def edit_category(category_name):
 
 
 @app.route('/category/<string:category_name>/delete', methods=['GET', 'POST'])
+@login_required
 def delete_category(category_name):
     """
         Arguments: Name of the category which is to be edited
 
         Deletes an existing category name.
     """
-    if 'username' not in login_session:
-        return redirect("/login")
     deleted_genre = session.query(Category).filter_by(
         name=category_name).one()
     if request.method == 'POST':
@@ -409,14 +416,13 @@ def show_particular_item(category_name, item_name):
 
 
 @app.route('/category/<string:category_name>/new', methods=['GET', 'POST'])
+@login_required
 def new_item(category_name):
     """
     Arguments: Name of the category
 
     Adds a new item to the given category.
     """
-    if 'username' not in login_session:
-        return redirect("/login")
     category = session.query(Category).filter_by(name=category_name).one()
     if request.method == 'POST':
         book = Item(name=request.form['name'],
@@ -437,6 +443,7 @@ def new_item(category_name):
 
 @app.route('/category/<string:category_name>/<string:item_name>/edit',
            methods=['GET', 'POST'])
+@login_required
 def edit_item(category_name, item_name):
     """
     Arguments: Name of the category
@@ -444,8 +451,6 @@ def edit_item(category_name, item_name):
 
     Edit a particular item from a particular category.
     """
-    if 'username' not in login_session:
-        return redirect("/login")
     edited_item = session.query(Item).filter_by(name=item_name).one()
     if request.method == 'POST':
         edited_item.name = request.form['item_name']
@@ -466,6 +471,7 @@ def edit_item(category_name, item_name):
 
 @app.route('/category/<string:category_name>/<string:item_name>/delete',
            methods=['GET', 'POST'])
+@login_required
 def delete_item(category_name, item_name):
     """
     Arguments: Name of the category
@@ -473,8 +479,6 @@ def delete_item(category_name, item_name):
 
     Deletes a particular item from a particular category.
     """
-    if 'username' not in login_session:
-        return redirect("/login")
     deleted_item = session.query(Item).filter_by(
         name=item_name)
     if request.method == 'POST':
