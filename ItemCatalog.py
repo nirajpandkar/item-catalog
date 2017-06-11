@@ -497,11 +497,12 @@ def delete_item(category_name, item_name):
     Deletes a particular item from a particular category.
     """
     deleted_item = session.query(Item).filter_by(
-        name=item_name)
+        name=item_name).one()
 
-    if deleted_item.user_id == login_session:
+    if deleted_item.user_id == login_session['user_id']:
         if request.method == 'POST':
-            deleted_item.delete(synchronize_session=False)
+            # deleted_item.delete(synchronize_session=False)
+            session.delete(deleted_item)
             try:
                 session.commit()
             except:
